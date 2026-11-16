@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplication Table – Study & Quiz</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #dbeafe;
+      --success: #16a34a;
+      --success-bg: #dcfce7;
+      --error: #dc2626;
+      --error-bg: #fee2e2;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .top-bar {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .lang-select {
+      padding: 6px 12px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 2px solid var(--primary);
+      background: var(--card);
+      color: var(--primary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* --- MULTIPLICATION TABLE --- */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: bold;
+    }
+
+    td:hover, td.highlight {
+      background-color: var(--primary-light);
+      font-weight: bold;
+    }
+
+    td.selected {
+      background-color: var(--primary);
+      color: white;
+      font-weight: bold;
+    }
+
+    .table-info {
+      margin-top: 16px;
+      padding: 14px;
+      background: var(--primary-light);
+      border-radius: 8px;
+      font-size: 16px;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* --- QUIZ --- */
+    .score-board {
+      display: flex;
+      justify-content: space-between;
+      background: var(--bg);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .range-selector {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .question-box {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .equation {
+      font-size: 42px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    input[type="number"] {
+      width: 120px;
+      font-size: 28px;
+      padding: 10px;
+      text-align: center;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .action-btn {
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .action-btn:hover {
+      opacity: 0.9;
+    }
+
+    .feedback-box {
+      margin-top: 24px;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: left;
+      line-height: 1.6;
+    }
+
+    .feedback-correct {
+      background-color: var(--success-bg);
+      border: 2px solid var(--success);
+      color: #14532d;
+    }
+
+    .feedback-wrong {
+      background-color: var(--error-bg);
+      border: 2px solid var(--error);
+      color: #7f1d1d;
+    }
+
+    .feedback-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .explanation-box {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 10px;
+      color: var(--text);
+    }
+
+    .next-btn-wrapper {
+      text-align: center;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <select id="lang-select" class="lang-select" onchange="changeLanguage(this.value)">
+      <option value="en">🇬🇧 English</option>
+      <option value="pl">🇵🇱 Polski</option>
+      <option value="ja">🇯🇵 日本語</option>
+    </select>
+  </div>
+
+  <h1 id="app-title">Multiplication Table</h1>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="btn-tab-table" onclick="switchTab('table')">📊 Study Table</button>
+    <button class="tab-btn" id="btn-tab-quiz" onclick="switchTab('quiz')">🎯 Quiz with Explanation</button>
+  </div>
+
+  <!-- SECTION 1: MULTIPLICATION TABLE -->
+  <div class="container" id="section-table">
+    <p id="table-instruction" style="text-align: center; margin-top: 0;">Click any number in the table to see how the result is calculated.</p>
+    <div class="table-wrapper">
+      <table id="mult-table"></table>
+    </div>
+    <div class="table-info" id="table-info">
+      Select a cell from the table above to see the explanation.
+    </div>
+  </div>
+
+  <!-- SECTION 2: QUIZ -->
+  <div class="container hidden" id="section-quiz">
+    <div class="score-board">
+      <span>✅ <span id="label-correct">Correct</span>: <span id="score-correct">0</span></span>
+      <span>❌ <span id="label-wrong">Wrong</span>: <span id="score-wrong">0</span></span>
+    </div>
+
+    <div class="range-selector">
+      <label for="max-num"><strong id="label-range">Multiplication range:</strong></label>
+      <select id="max-num" onchange="generateQuestion()" style="padding: 6px; font-size: 15px; border-radius: 6px;">
+        <option value="5" id="opt-easy">Easy (up to 5 × 5)</option>
+        <option value="9" id="opt-kuku">Kuku (up to 9 × 9)</option>
+        <option value="10" id="opt-standard" selected>Standard (up to 10 × 10)</option>
+      </select>
+    </div>
+
+    <div class="question-box">
+      <div class="equation" id="equation">6 × 7 = ?</div>
+      <div class="input-group">
+        <input type="number" id="answer-input" placeholder="?" min="0" max="100">
+        <button class="action-btn" id="check-btn" onclick="checkAnswer()">Check</button>
+      </div>
+    </div>
+
+    <div id="feedback" class="feedback-box hidden">
+      <div class="feedback-title" id="feedback-title"></div>
+      <div id="feedback-summary"></div>
+      <div class="explanation-box" id="explanation-text"></div>
+      <div class="next-btn-wrapper">
+        <button class="action-btn" id="next-btn" onclick="generateQuestion()">Next question ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- TRANSLATIONS ---
+    const translations = {
+      en: {
+        pageTitle: "Multiplication Table – Study & Quiz",
+        appTitle: "Multiplication Table",
+        tabTable: "📊 Study Table",
+        tabQuiz: "🎯 Quiz with Explanation",
+        tableInstruction: "Click any number in the table to see how the result is calculated.",
+        tableDefaultInfo: "Select a cell from the table above to see the explanation.",
+        tableCellInfo: (r, c, res, steps) =>
+          `<strong>${r} × ${c} = ${res}</strong> &nbsp;|&nbsp; This means adding <strong>${c}</strong> a total of <strong>${r}</strong> times: (${steps} = ${res}).`,
+        labelCorrect: "Correct",
+        labelWrong: "Wrong",
+        labelRange: "Multiplication range:",
+        optEasy: "Easy (up to 5 × 5)",
+        optKuku: "Up to 9 × 9",
+        optStandard: "Standard (up to 10 × 10)",
+        checkBtn: "Check",
+        nextBtn: "Next question ➔",
+        correctTitle: "✅ Correct answer!",
+        correctSummary: (a, b, res) => `Great job! <strong>${a} × ${b} = ${res}</strong>.`,
+        wrongTitle: "❌ Incorrect answer",
+        wrongSummary: (userVal, a, b, res) => `You entered <strong>${userVal}</strong>, but the correct answer for <strong>${a} × ${b}</strong> is <strong>${res}</strong>.`,
+        explainHeading: "Why is it calculated this way?",
+        explainBody: (a, b, steps, res) => `Multiplying <strong>${a} × ${b}</strong> means adding the number <strong>${b}</strong> to itself <strong>${a}</strong> times:<br>👉 ${steps} = <strong>${res}</strong>`,
+        tipLabel: "Tip:",
+        tips: {
+          one: "Multiplying by 1 always gives the same number.",
+          ten: "When multiplying by 10, simply add a zero to the end of the other number.",
+          five: "The result of multiplying by 5 always ends in 0 or 5.",
+          nine: (other, res) => `Trick for 9: multiply ${other} × 10 = ${other * 10}, then subtract ${other} (${other * 10} − ${other} = ${res}).`,
+          two: (other, res) => `Multiplying by 2 simply doubles the number: ${other} + ${other} = ${res}.`,
+          general: (a, b) => `Remember the commutative property: ${a} × ${b} is the exact same as ${b} × ${a}.`
+        }
+      },
+      pl: {
+        pageTitle: "Tabliczka Mnożenia – Nauka i Quiz",
+        appTitle: "Tabliczka Mnożenia",
+        tabTable: "📊 Tabliczka do nauki",
+        tabQuiz: "🎯 Quiz z wyjaśnieniem",
+        tableInstruction: "Kliknij dowolną liczbę w tabeli, aby zobaczyć, jak powstaje wynik.",
+        tableDefaultInfo: "Wybierz pole z tabliczki powyżej, aby zobaczyć wyjaśnienie.",
+        tableCellInfo: (r, c, res, steps) =>
+          `<strong>${r} × ${c} = ${res}</strong> &nbsp;|&nbsp; Oznacza to, że dodajemy liczbę <strong>${c}</strong> dokładnie <strong>${r}</strong> razy: (${steps} = ${res}).`,
+        labelCorrect: "Poprawne",
+        labelWrong: "Błędne",
+        labelRange: "Zakres mnożenia:",
+        optEasy: "Łatwy (do 5 × 5)",
+        optKuku: "Do 9 × 9",
+        optStandard: "Standardowy (do 10 × 10)",
+        checkBtn: "Sprawdź",
+        nextBtn: "Następne działanie ➔",
+        correctTitle: "✅ Poprawny wynik!",
+        correctSummary: (a, b, res) => `Świetnie! <strong>${a} × ${b} = ${res}</strong>.`,
+        wrongTitle: "❌ Niepoprawny wynik",
+        wrongSummary: (userVal, a, b, res) => `Wpisałeś <strong>${userVal}</strong>, ale poprawny wynik działania <strong>${a} × ${b}</strong> to <strong>${res}</strong>.`,
+        explainHeading: "Dlaczego tak się oblicza?",
+        explainBody: (a, b, steps, res) => `Mnożenie <strong>${a} × ${b}</strong> oznacza, że liczbę <strong>${b}</strong> dodajemy do siebie <strong>${a}</strong> razy:<br>👉 ${steps} = <strong>${res}</strong>`,
+        tipLabel: "Wskazówka:",
+        tips: {
+          one: "Mnożenie przez 1 zawsze daje tę samą liczbę.",
+          ten: "Gdy mnożysz przez 10, wystarczy dopisać jedno zero na końcu drugiej liczby.",
+          five: "Wynik mnożenia przez 5 zawsze kończy się cyfrą 0 lub 5.",
+          nine: (other, res) => `Sztuczka dla 9: pomnóż ${other} × 10 = ${other * 10}, a potem odejmij ${other} (${other * 10} − ${other} = ${res}).`,
+          two: (other, res) => `Mnożenie przez 2 to po prostu podwojenie liczby: ${other} + ${other} = ${res}.`,
+          general: (a, b) => `Pamiętaj o przemienności mnożenia: ${a} × ${b} to dokładnie tyle samo co ${b} × ${a}.`
+        }
+      },
+      ja: {
+        pageTitle: "かけ算九九 – 学習とクイズ",
+        appTitle: "かけ算九九（くく）",
+        tabTable: "📊 かけ算の表",
+        tabQuiz: "🎯 解説つきクイズ",
+        tableInstruction: "表の数字をクリックすると、計算のしくみが表示されます。",
+        tableDefaultInfo: "上の表からマスを1つ選ぶと、ここに解説が表示されます。",
+        tableCellInfo: (r, c, res, steps) =>
+          `<strong>${r} × ${c} = ${res}</strong> &nbsp;|&nbsp; <strong>${r}</strong> を <strong>${c}</strong> 個たすという意味です：（${steps} = ${res}）`,
+        labelCorrect: "せいかい",
+        labelWrong: "まちがい",
+        labelRange: "もんだいの はんい：",
+        optEasy: "かんたん（5 × 5 まで）",
+        optKuku: "九九（9 × 9 まで）",
+        optStandard: "ひょうじゅん（10 × 10 まで）",
+        checkBtn: "こたえあわせ",
+        nextBtn: "つぎのもんだい ➔",
+        correctTitle: "✅ せいかい！",
+        correctSummary: (a, b, res) => `すごい！ <strong>${a} × ${b} = ${res}</strong> です。`,
+        wrongTitle: "❌ ざんねん、まちがい",
+        wrongSummary: (userVal, a, b, res) => `あなたのこたえは <strong>${userVal}</strong> でしたが、<strong>${a} × ${b}</strong> のせいかいは <strong>${res}</strong> です。`,
+        explainHeading: "どうしてこの答えになるの？",
+        explainBody: (a, b, steps, res) => `<strong>${a} × ${b}</strong> は、「<strong>${a}</strong> が <strong>${b}</strong> つ分」という意味です：<br>👉 ${steps} = <strong>${res}</strong>`,
+        tipLabel: "ポイント：",
+        tips: {
+          one: "1をかけても、1に数をかけても、答えはもとの数のまま変わりません。",
+          ten: "10をかけるときは、もとの数のうしろに「0」を1つつけるだけです。",
+          five: "5のだんの答えは、1のくらいがかならず「0」か「5」になります。",
+          nine: (other, res) => `9のだんのコツ：${other} × 10 = ${other * 10} から ${other} をひくと計算できます（${other * 10} − ${other} = ${res}）。`,
+          two: (other, res) => `2をかけるのは、同じ数を2回たすことと同じです（${other} + ${other} = ${res}）。`,
+          general: (a, b) => `かけ算は順番を入れかえても答えが同じになります（${a} × ${b} = ${b} × ${a}）。`
+        }
+      }
+    };
+
+    // --- LANGUAGE DETECTION & STATE ---
+    function detectInitialLanguage() {
+      const savedLang = localStorage.getItem('mult_app_lang');
+      if (savedLang && translations[savedLang]) {
+        return savedLang;
+      }
+      const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      if (browserLang.startsWith('pl')) return 'pl';
+      if (browserLang.startsWith('ja')) return 'ja';
+      return 'en';
+    }
+
+    let currentLang = detectInitialLanguage();
+    let selectedCellCoords = null;
+    let lastUserAnswer = null;
+
+    function changeLanguage(lang) {
+      if (!translations[lang]) lang = 'en';
+      currentLang = lang;
+      localStorage.setItem('mult_app_lang', lang);
+      document.documentElement.lang = lang;
+      document.getElementById('lang-select').value = lang;
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      const t = translations[currentLang];
+      document.title = t.pageTitle;
+      document.getElementById('app-title').textContent = t.appTitle;
+      document.getElementById('btn-tab-table').textContent = t.tabTable;
+      document.getElementById('btn-tab-quiz').textContent = t.tabQuiz;
+      document.getElementById('table-instruction').textContent = t.tableInstruction;
+
+      if (selectedCellCoords) {
+        updateTableInfo(selectedCellCoords.r, selectedCellCoords.c);
+      } else {
+        document.getElementById('table-info').textContent = t.tableDefaultInfo;
+      }
+
+      document.getElementById('label-correct').textContent = t.labelCorrect;
+      document.getElementById('label-wrong').textContent = t.labelWrong;
+      document.getElementById('label-range').textContent = t.labelRange;
+      document.getElementById('opt-easy').textContent = t.optEasy;
+      document.getElementById('opt-kuku').textContent = t.optKuku;
+      document.getElementById('opt-standard').textContent = t.optStandard;
+      document.getElementById('check-btn').textContent = t.checkBtn;
+      document.getElementById('next-btn').textContent = t.nextBtn;
+
+      // Re-render feedback if currently visible
+      if (answered && lastUserAnswer !== null) {
+        renderFeedback(lastUserAnswer);
+      }
+    }
+
+    // --- TAB SWITCHING ---
+    function switchTab(tab) {
+      document.getElementById('section-table').classList.toggle('hidden', tab !== 'table');
+      document.getElementById('section-quiz').classList.toggle('hidden', tab !== 'quiz');
+      document.getElementById('btn-tab-table').classList.toggle('active', tab === 'table');
+      document.getElementById('btn-tab-quiz').classList.toggle('active', tab === 'quiz');
+
+      if (tab === 'quiz') {
+        document.getElementById('answer-input').focus();
+      }
+    }
+
+    // --- MULTIPLICATION TABLE ---
+    function buildTable() {
+      const table = document.getElementById('mult-table');
+      let html = '<tr><th>×</th>';
+      for (let c = 1; c <= 10; c++) {
+        html += `<th>${c}</th>`;
+      }
+      html += '</tr>';
+
+      for (let r = 1; r <= 10; r++) {
+        html += `<tr><th>${r}</th>`;
+        for (let c = 1; c <= 10; c++) {
+          html += `<td data-r="${r}" data-c="${c}" onclick="selectCell(${r}, ${c}, this)">${r * c}</td>`;
+        }
+        html += '</tr>';
+      }
+      table.innerHTML = html;
+    }
+
+    function selectCell(r, c, cellElement) {
+      selectedCellCoords = { r, c };
+      document.querySelectorAll('#mult-table td').forEach(td => {
+        td.classList.remove('selected', 'highlight');
+        if (td.dataset.r == r || td.dataset.c == c) {
+          td.classList.add('highlight');
+        }
+      });
+      cellElement.classList.add('selected');
+      updateTableInfo(r, c);
+    }
+
+    function updateTableInfo(r, c) {
+      const t = translations[currentLang];
+      const result = r * c;
+      // In Japanese elementary math (かけ算), a × b means "a repeated b times" (1つ分の数 × いくつ分)
+      const steps = currentLang === 'ja'
+        ? Array(c).fill(r).join(' + ')
+        : Array(r).fill(c).join(' + ');
+
+      document.getElementById('table-info').innerHTML = t.tableCellInfo(r, c, result, steps);
+    }
+
+    // --- QUIZ LOGIC ---
+    let currentA = 1;
+    let currentB = 1;
+    let correctCount = 0;
+    let wrongCount = 0;
+    let answered = false;
+
+    function generateQuestion() {
+      const max = parseInt(document.getElementById('max-num').value, 10);
+      currentA = Math.floor(Math.random() * max) + 1;
+      currentB = Math.floor(Math.random() * max) + 1;
+      answered = false;
+      lastUserAnswer = null;
+
+      document.getElementById('equation').textContent = `${currentA} × ${currentB} = ?`;
+      const input = document.getElementById('answer-input');
+      input.value = '';
+      input.disabled = false;
+      input.focus();
+
+      document.getElementById('check-btn').disabled = false;
+      document.getElementById('feedback').classList.add('hidden');
+    }
+
+    function buildExplanation(a, b, result) {
+      const t = translations[currentLang];
+      // Respect Japanese convention (a × b = a added b times) vs Polish/English convention
+      const addition = currentLang === 'ja'
+        ? Array(b).fill(a).join(' + ')
+        : Array(a).fill(b).join(' + ');
+
+      let tip = '';
+
+      if (a === 1 || b === 1) {
+        tip = t.tips.one;
+      } else if (a === 10 || b === 10) {
+        tip = t.tips.ten;
+      } else if (a === 5 || b === 5) {
+        tip = t.tips.five;
+      } else if (a === 9 || b === 9) {
+        const other = a === 9 ? b : a;
+        tip = t.tips.nine(other, result);
+      } else if (a === 2 || b === 2) {
+        const other = a === 2 ? b : a;
+        tip = t.tips.two(other, result);
+      } else {
+        tip = t.tips.general(a, b);
+      }
+
+      return `
+        <strong>${t.explainHeading}</strong><br>
+        ${t.explainBody(a, b, addition, result)}<br><br>
+        💡 <em>${t.tipLabel}</em> ${tip}
+      `;
+    }
+
+    function renderFeedback(userVal) {
+      const t = translations[currentLang];
+      const correctResult = currentA * currentB;
+      const feedbackBox = document.getElementById('feedback');
+      const feedbackTitle = document.getElementById('feedback-title');
+      const feedbackSummary = document.getElementById('feedback-summary');
+
+      feedbackBox.classList.remove('hidden', 'feedback-correct', 'feedback-wrong');
+
+      if (userVal === correctResult) {
+        feedbackBox.classList.add('feedback-correct');
+        feedbackTitle.textContent = t.correctTitle;
+        feedbackSummary.innerHTML = t.correctSummary(currentA, currentB, correctResult);
+      } else {
+        feedbackBox.classList.add('feedback-wrong');
+        feedbackTitle.textContent = t.wrongTitle;
+        feedbackSummary.innerHTML = t.wrongSummary(userVal, currentA, currentB, correctResult);
+      }
+
+      document.getElementById('explanation-text').innerHTML = buildExplanation(currentA, currentB, correctResult);
+    }
+
+    function checkAnswer() {
+      if (answered) return;
+
+      const input = document.getElementById('answer-input');
+      const userVal = parseInt(input.value, 10);
+
+      if (isNaN(userVal)) {
+        input.focus();
+        return;
+      }
+
+      answered = true;
+      lastUserAnswer = userVal;
+      input.disabled = true;
+      document.getElementById('check-btn').disabled = true;
+
+      const correctResult = currentA * currentB;
+      if (userVal === correctResult) {
+        correctCount++;
+        document.getElementById('score-correct').textContent = correctCount;
+      } else {
+        wrongCount++;
+        document.getElementById('score-wrong').textContent = wrongCount;
+      }
+
+      renderFeedback(userVal);
+    }
+
+    // Enter key support
+    document.getElementById('answer-input').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        if (!answered) {
+          checkAnswer();
+        } else {
+          generateQuestion();
+        }
+      }
+    });
+
+    // --- INITIALIZATION ---
+    buildTable();
+    changeLanguage(currentLang);
+    // Default range to 9x9 for Japanese Kuku on first load if not set
+    if (currentLang === 'ja') {
+      document.getElementById('max-num').value = '9';
+    }
+    generateQuestion();
+  </script>
+</body>
+</html>
